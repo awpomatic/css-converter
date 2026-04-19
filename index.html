@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV Converter</title>
+</head>
+<body>
+    <h1>DEVICE Data Converter</h1>
+    <input type="file" id="fileInput" multiple accept=".txt">
+    <button onclick="convertFiles()">Convert to CSV</button>
+</body>
+
+<script>
+    function convertFiles() {
+        const input = document.getElementById("fileInput")
+        const files = input.files
+
+        if (files.length === 0) {
+            alert("Please select some files first!")
+            return
+        }
+
+        let allRows = []
+        let headers = null
+        let filesRead = 0
+
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader()
+
+            reader.onload = function(e) {
+                const lines = e.target.result.split("\n")
+
+                if (headers === null) {
+                    headers = lines[0]
+                }
+
+                for (let j = 1; j < lines.length; j++) {
+                    if (lines[j].trim() !== "") {
+                        allRows.push(lines[j])
+                    }
+                }
+
+                filesRead++
+                if (filesRead === files.length) {
+                    const csvConvert = headers + "\n" + allRows.join("\n")
+                    const blob = new Blob ([csvConvert], {type: "text/csv" })
+                    const url = URL.createObjectURL(blob)
+
+                    const a = document.createElement("a")
+                    a.href =url
+                    a.download = "merged_device_data.csv"
+                    a.click()
+                }
+            }
+
+            reader.readAsText(files[i])
+        }
+    }
+</script>
+</html>
